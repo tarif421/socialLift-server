@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -24,12 +24,28 @@ async function run() {
     await client.connect();
 
     const db = client.db("socialLift");
-    const modelCollection = db.collection("upcomingEvents");
+    const upcomingEvents = db.collection("upcomingEvents");
+
+    // create
+    app.post("/socialLift", async (req, res) => {
+      const newEvent = req.body;
+      const result = await upcomingEvents.insertOne(newEvent);
+      res.send(result);
+    });
+
     // upcoming events
     app.get("/socialLift", async (req, res) => {
-      const result = await modelCollection.find().toArray();
+      const result = await upcomingEvents.find().toArray();
       console.log(result);
 
+      res.send(result);
+    });
+
+    //  details
+    app.get("/details/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await upcomingEvents.findOne(query);
       res.send(result);
     });
 
