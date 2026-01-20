@@ -22,9 +22,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-
+    // collection
     const db = client.db("socialLift");
     const upcomingEvents = db.collection("upcomingEvents");
+    const joinEvents = db.collection("joinEvents");
 
     // create
     app.post("/socialLift", async (req, res) => {
@@ -47,6 +48,21 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await upcomingEvents.findOne(query);
       res.send(result);
+    });
+    // join event
+    app.post("/join-event", async (req, res) => {
+      const joinData = req.body;
+      const result = await joinEvents.insertOne(joinData);
+      res.send(result);
+
+      // no duplicate
+      const exists = await joinEvents.findOne({
+        eventId: joinData.eventId,
+        useEmail: joinData.userEmail,
+      });
+      if (exists) {
+        return res.status(400).send({ message: "Already joined" });
+      }
     });
 
     await client.db("admin").command({ ping: 1 });
