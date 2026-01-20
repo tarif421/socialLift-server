@@ -52,18 +52,33 @@ async function run() {
     // join event
     app.post("/join-event", async (req, res) => {
       const joinData = req.body;
-      const result = await joinEvents.insertOne(joinData);
-      res.send(result);
 
       // no duplicate
       const exists = await joinEvents.findOne({
         eventId: joinData.eventId,
-        useEmail: joinData.userEmail,
+        userEmail: joinData.userEmail,
       });
       if (exists) {
         return res.status(400).send({ message: "Already joined" });
       }
+
+      const result = await joinEvents.insertOne(joinData);
+      res.send(result);
     });
+
+    // my event
+    app.get("/my-event", async (req, res) => {
+      const result = await joinEvents.find().toArray();
+      res.send(result);
+    });
+
+    //  all created event by user
+    app.get("/users-events", async (req, res) => {
+      const email = req.query.email;
+      const result = await upcomingEvents.find({ createdBy: email }).toArray();
+      res.send(result);
+    })
+   
 
     await client.db("admin").command({ ping: 1 });
     console.log(
