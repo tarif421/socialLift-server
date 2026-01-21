@@ -53,7 +53,7 @@ async function run() {
     app.post("/join-event", async (req, res) => {
       const joinData = req.body;
 
-      // no duplicate
+      //
       const exists = await joinEvents.findOne({
         eventId: joinData.eventId,
         userEmail: joinData.userEmail,
@@ -66,9 +66,11 @@ async function run() {
       res.send(result);
     });
 
-    // my event
+    // my joined event
     app.get("/my-event", async (req, res) => {
-      const result = await joinEvents.find().toArray();
+      const email = req.query.email;
+
+      const result = await joinEvents.find({ userEmail: email }).toArray();
       res.send(result);
     });
 
@@ -77,8 +79,31 @@ async function run() {
       const email = req.query.email;
       const result = await upcomingEvents.find({ createdBy: email }).toArray();
       res.send(result);
-    })
-   
+    });
+    //   delete ManageEvents
+    app.delete("/delete-event/:id", async (req, res) => {
+      const id = req.params.id;
+      const email = req.query.email;
+
+      const result = await upcomingEvents.deleteOne({
+        _id: new ObjectId(id),
+        createdBy: email,
+      });
+
+      res.send(result);
+    });
+    // cancel event
+    app.delete("/cancel-event/:id", async (req, res) => {
+      const id = req.params.id;
+      const email = req.query.email;
+
+      const result = await joinEvents.deleteOne({
+        eventId: id,
+        userEmail: email,
+      });
+
+      res.send(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
