@@ -92,6 +92,31 @@ async function run() {
 
       res.send(result);
     });
+    // update event
+
+    app.get("/users-events/:id", async (req, res) => {
+      const event = await upcomingEvents.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      res.json(event);
+    });
+
+
+    app.patch("/update-events/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateEvent = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          title: updateEvent.title,
+          description: updateEvent.description,
+          type: updateEvent.type,
+          thumbnail: updateEvent.thumbnail,
+        },
+      };
+      const result = await upcomingEvents.updateOne(query, update);
+      res.json(result);
+    });
     // cancel event
     app.delete("/cancel-event/:id", async (req, res) => {
       const id = req.params.id;
