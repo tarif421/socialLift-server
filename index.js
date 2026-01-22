@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri =
-  "mongodb+srv://socialLift-db:sTjp9E0VeKXbWjs5@cluster0.9aos02c.mongodb.net/?appName=Cluster0";
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9aos02c.mongodb.net/?appName=Cluster0`;
 
 // mongoDB
 
