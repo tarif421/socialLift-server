@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -6,8 +7,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9aos02c.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9aos02c.mongodb.net/?appName=Cluster0`;
 
 // mongoDB
 
@@ -101,7 +101,6 @@ async function run() {
       res.json(event);
     });
 
-
     app.patch("/update-events/:id", async (req, res) => {
       const id = req.params.id;
       const updateEvent = req.body;
@@ -127,6 +126,13 @@ async function run() {
         userEmail: email,
       });
 
+      res.send(result);
+    });
+
+    //   search
+    app.get("/search", async (req, res) => {
+      const searchText = req.query.search;
+      const result = await upcomingEvents.find({ title: {$regex: searchText, $options: "i"} }).toArray();
       res.send(result);
     });
 
